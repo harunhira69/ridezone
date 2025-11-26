@@ -169,6 +169,40 @@ app.get('/products', async (req, res) => {
   }
 });
 
+// Add new product
+app.post('/products', async (req, res) => {
+  try {
+    if (!productCollection) return res.status(500).json({ message: "Database not connected" });
+
+    const { name, brand, model, category, price, image, description, userId } = req.body;
+
+    if (!name || !brand || !category || !price)
+      return res.status(400).json({ message: "Please fill all required fields" });
+
+    const result = await productCollection.insertOne({
+      name,
+      brand,
+      model,
+      category,
+      price,
+      image,
+      description,
+      userId,
+      createdAt: new Date(),
+    });
+
+    res.status(201).json({
+      message: "Product added successfully",
+      productId: result.insertedId,
+    });
+
+  } catch (err) {
+    console.error("Error adding product:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 app.get('/products/:id', async (req, res) => {
   try {
     if (!productCollection)
